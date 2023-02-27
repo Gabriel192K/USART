@@ -9,21 +9,27 @@
 #include "Time/Time.h"
 #include <string.h>
 
-uint8_t buffer[32];
+char buffer[32];
 
 int main(void)
 {
-    USART.begin(115200);
+    USART.begin(9600);
     Time.begin();
-    USART.writePln(PSTR("Hello World"));
+    USART.printP(PSTR("Read Until USART Demo\n"));
     while (1) 
     {
-        uint8_t status = USART.readUntil(buffer, '$');
+        static time_t timestamp;
+        if (Time.millis() - timestamp >= 1000)
+        {
+            USART.printP(PSTR("Ping...\n"));
+            timestamp = Time.millis();
+        }
+
+        uint8_t status = USART.readUntil(buffer, '$'); /* Read an array of bytes until specified character */
         if (status)
         {
-            USART.writef("[%hhu:%hhu::%hhu] ", 12, 12, 12);
-            USART.writeP(PSTR("Got data: "));
-            USART.writeln(buffer);
+            USART.printP(PSTR("Got data: "));
+            USART.println(buffer);
             memset(buffer, 0, (sizeof(buffer) / sizeof(buffer[0])));
         }
     }

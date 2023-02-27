@@ -24,7 +24,7 @@ class __USART__
         uint8_t available(void);
         void    flush    (void);
         uint8_t read     (void);
-        uint8_t readUntil(uint8_t* array, const uint8_t terminator);
+        uint8_t readUntil(char* array, const uint8_t terminator);
         void    write    (const uint8_t byte);
         void    write    (const uint8_t* array);
         void    print    (const char byte) {__USART__::write((uint8_t)byte);}

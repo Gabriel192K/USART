@@ -104,10 +104,10 @@ uint8_t __USART__::read(void)
 /*******************************
 Function: readUntil()
 Purpose:  Read array of bytes from ring buffer
-Input:    Arrat and terminator of array
+Input:    Array and terminator of array
 Return:   Flag if array is received
 ********************************/
-uint8_t __USART__::readUntil(uint8_t* array, const uint8_t terminator)
+uint8_t __USART__::readUntil(char* array, const uint8_t terminator)
 {
     if (__USART__::available())                     /* Detect available data into the <USART> buffer */
     {
