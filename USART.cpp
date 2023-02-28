@@ -3,8 +3,6 @@
 /* Macros */
 #define PRESCALE(baudrate) (ROUND((F_CPU / (16.0 * baudrate)) - 1.0)) /* Calculate baudrate */
 
-#if defined(HAVE_USART)
-
 /*********************************************
 Function: __USART__()
 Purpose:  Constructor to __USART__ class
@@ -51,10 +49,12 @@ void __USART__::begin(uint32_t baudrate)
 
     ATOMIC_BLOCK(ATOMIC_FORCEON)
     {
+        #if defined(__AVR_ATmega328P__)
         *this->ubrrh = (uint8_t)(prescale >> 8);                   /* Write <LSB> of the prescale */
         *this->ubrrl = (uint8_t)prescale;                          /* Write <MSB> of the prescale */
         *this->ucsrc |= (1 << UCSZ1) | (1 << UCSZ0);               /* 8 bit data transmission size */
         *this->ucsrb |= (1 << RXEN) | (1 << RXCIE) | (1 << TXEN);  /* Enable <RX>, <RX-IRQ>, <TX> */
+        #endif
     }
 }
 
@@ -138,7 +138,9 @@ void __USART__::write(const uint8_t byte)
     this->USART_TX_HEAD = bufferHead;                                            /* Copy trucated head */
     this->USART_TX_BUFFER[this->USART_TX_HEAD] = byte;                           /* Load data into buffer */
 
+    #if defined(__AVR_ATmega328P__)
     *this->ucsrb |= (1 << UDRIE); /* Enable TX interrupt */
+    #endif
 }
 
 /***************************************************
@@ -193,7 +195,9 @@ void __USART__::end(void)
     free((uint8_t*)this->USART_TX_BUFFER); /* Free TX buffer */
     this->hasBegin = 0;                    /* Allow reinitialization of USART bus */
 
+    #if defined(__AVR_ATmega328P__)
     *this->ucsrb &= ~((1 << RXEN) | (1 << RXCIE) | (1 << TXEN)); /* Disable <RX>, <RX-IRQ>, <TX> */
+    #endif
 }
 
 /***************************************************
@@ -222,13 +226,12 @@ inline void __USART__::txIRQ(void)
         *this->udr = this->USART_TX_BUFFER[this->USART_TX_TAIL];                      /* Load data from buffer */
     }
     else                                                                              /* Else there's no data into buffer */
+        #if defined(__AVR_ATmega328P__)
         *this->ucsrb &= ~(1 << UDRIE);                                                /* Disable TX interrupt */
+        #endif
 }
 
-#endif
-
-/* Check if MCU have USART bus */
-#if defined(HAVE_USART)
+#if defined(__AVR_ATmega328P__)
 __USART__ USART = __USART__(&UBRRH, &UBRRL, &UCSRA, &UCSRB, &UCSRC, &UDR);
 #endif
 
@@ -238,7 +241,7 @@ Purpose:  Handling interrupts of USART RX
 Input:    Interrupt vector
 Return:   None
 ************************/
-#if defined(HAVE_USART)
+#if defined(__AVR_ATmega328P__)
 ISR(USART_RX_vect)
 {
     USART.rxIRQ();
@@ -251,7 +254,7 @@ Purpose:  Handling interrupts of USART TX
 Input:    Interrupt vector
 Return:   None
 ************************/
-#if defined(HAVE_USART)
+#if defined(__AVR_ATmega328P__)
 ISR(USART_UDRE_vect)
 {
     USART.txIRQ();

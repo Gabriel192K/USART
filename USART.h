@@ -56,8 +56,9 @@ class __USART__
 };
 
 #if defined(__AVR_ATmega328P__)
-#define HAVE_USART
 extern __USART__ USART;
+#else
+#error "No USART bus implementation"
 #endif
 
 #endif
