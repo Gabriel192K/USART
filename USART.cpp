@@ -151,7 +151,7 @@ Return:   None
 ***************************************************/
 void __USART__::write(const uint8_t* array)
 {
-    while(*array)               /* While data is available */
+    while(*array)              /* While data is available */
         this->write(*array++); /* Write data into buffer */
 }
 
