@@ -75,12 +75,12 @@ Purpose:  Get the number of bytes waiting in the RX buffer
 Input:    None
 Return:   Number of bytes waiting in the RX buffer
 ***************************************************************/
-uint8_t __USART__::available(void)
+const uint8_t __USART__::available(void)
 {
     uint8_t bytes = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        bytes = (USART_DEFAULT_RX_BUFFER_SIZE + this->rxHead - this->rxTail) & USART_DEFAULT_RX_BUFFER_MASK;
+        bytes = (USART_DEFAULT_RX_BUFFER_SIZE + this->rxHead - this->rxTail) % USART_DEFAULT_RX_BUFFER_SIZE;
     }
     return (bytes);
 }
@@ -105,17 +105,20 @@ Purpose:  Read byte from buffer
 Input:    None
 Return:   Byte to be read
 ********************************/
-uint8_t __USART__::read(void)
+const uint8_t __USART__::read(void)
 {
     /* Check if RX buffer is empty */
     if (this->rxHead == this->rxTail)
         return ('\0');
-
-    /* Read byte */
-    uint8_t byte = this->rxBuffer[this->rxTail];
-    /* Increase tail */
-    this->rxTail = (this->rxTail + 1) & USART_DEFAULT_RX_BUFFER_MASK;
-
+	
+	uint8_t byte = 0;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        /* Read byte */
+        byte = this->rxBuffer[this->rxTail];
+        /* Increase tail */
+        this->rxTail = (this->rxTail + 1) % USART_DEFAULT_RX_BUFFER_SIZE;
+    }
     /* Return data from buffer */
     return (byte);
 }
@@ -126,7 +129,7 @@ Purpose:  Read bytes from buffer
 Input:    Array to store bytes, its size and the timeout value
 Return:   How many bytes were read
 ********************************/
-int8_t __USART__::read(uint8_t* buffer, uint8_t size, const uint32_t timeout)
+const int8_t __USART__::read(uint8_t* buffer, uint8_t size, const uint32_t timeout)
 {
     /* If no size do not bother and return */
     if (!size)
@@ -168,7 +171,7 @@ Purpose:  Read bytes from buffer
 Input:    Array to store bytes and its size
 Return:   How many bytes were read
 ********************************/
-int8_t __USART__::read(uint8_t* buffer, uint8_t size)
+const int8_t __USART__::read(uint8_t* buffer, uint8_t size)
 {
     return (this->read(buffer, size, 0));
 }
@@ -182,7 +185,7 @@ Return:   None
 void __USART__::write(const uint8_t byte)
 {
     /* Trucate increase of head of buffer */
-    uint8_t bufferHead = (this->txHead + 1) & USART_DEFAULT_TX_BUFFER_MASK;
+    uint8_t bufferHead = (this->txHead + 1) % USART_DEFAULT_TX_BUFFER_SIZE;
     /* Check if next element will overflow and wait if true */
     while (bufferHead == this->txTail);
 
@@ -431,7 +434,7 @@ void __USART__::rxIRQ(void)
     /* Read data into buffer */
     this->rxBuffer[this->rxHead] = *(this->udr);
     /* Increase head */
-    this->rxHead = (this->rxHead + 1) & USART_DEFAULT_RX_BUFFER_MASK;
+    this->rxHead = (this->rxHead + 1) % USART_DEFAULT_RX_BUFFER_SIZE;
 }
 
 /***************************************************
@@ -448,7 +451,7 @@ void __USART__::txIRQ(void)
         /* Load data from buffer */
         *(this->udr) = this->txBuffer[this->txTail];
         /* Increase tail */
-        this->txTail = (this->txTail + 1) & USART_DEFAULT_TX_BUFFER_MASK;
+        this->txTail = (this->txTail + 1) % USART_DEFAULT_TX_BUFFER_SIZE;
     }
     /* Else there's no data into buffer */
     else
