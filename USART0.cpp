@@ -26,7 +26,11 @@ Purpose:  Handling interrupts of USART TX
 Input:    Interrupt vector
 Return:   None
 ************************/
+#if defined(USART_UDRE_vect)
+ISR(USART_UDRE_vect)
+#elif defined(USART0_UDRE_vect)
 ISR(USART0_UDRE_vect)
+#endif
 {
     USART.txIRQ();
 }
