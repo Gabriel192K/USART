@@ -12,8 +12,8 @@
 #include "..\Time\Time.h"
 
 /* Macros */
-#define USART_DEFAULT_RX_BUFFER_SIZE (const uint8_t)128
-#define USART_DEFAULT_TX_BUFFER_SIZE (const uint8_t)128
+#define USART_DEFAULT_RX_BUFFER_SIZE (const uint8_t)64
+#define USART_DEFAULT_TX_BUFFER_SIZE (const uint8_t)64
 
 class __USART__
 {
