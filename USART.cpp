@@ -39,7 +39,7 @@ Purpose:  Start USART bus
 Input:    Baudrate of USART bus
 Return:   None
 *****************************************/
-void __USART__::begin(uint32_t baudrate)
+void __USART__::begin(const uint32_t baudrate)
 {
     /* If <USART> implementation already initialized do not bother */
     if (this->beginFunctionCalled)

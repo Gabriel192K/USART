@@ -20,7 +20,7 @@ class __USART__
     public:
         __USART__(volatile uint8_t* ubrrh, volatile uint8_t* ubrrl, volatile uint8_t* ucsra, volatile uint8_t* ucsrb, volatile uint8_t* ucsrc, volatile uint8_t* udr);
         ~__USART__();
-        void          begin    (uint32_t baudrate);
+        void          begin    (const uint32_t baudrate);
         const uint8_t available(void);
         void          flush    (void);
         const uint8_t read     (void);
